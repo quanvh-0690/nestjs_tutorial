@@ -1,0 +1,13 @@
+{
+  "IS_NOT_EMPTY": "{property} không được để trống",
+  "IS_STRING": "{property} phải là chuỗi",
+  "IS_EMAIL": "{property} không hợp lệ",
+  "MIN_LENGTH": "{property} quá ngắn (tối thiểu {constraints.0} ký tự)",
+  "MAX_LENGTH": "{property} quá dài (tối đa {constraints.0} ký tự)",
+  "IS_INT": "{property} phải là số nguyên",
+  "MIN": "{property} không được nhỏ hơn {constraints.0}",
+  "MAX": "{property} không được lớn hơn {constraints.0}",
+  "IS_ARRAY": "{property} phải là mảng",
+  "IS_URL": "{property} phải là URL hợp lệ",
+  "IS_IN": "{property} phải là một trong: {constraints.0}"
+}

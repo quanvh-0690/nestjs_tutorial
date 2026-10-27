@@ -1,0 +1,10 @@
+{
+  "HELLO": "Xin chào {name}! Chào mừng đến với Medium API",
+  "HEALTH_OK": "Dịch vụ đang hoạt động",
+  "BAD_REQUEST": "Yêu cầu không hợp lệ",
+  "UNAUTHORIZED": "Bạn chưa đăng nhập",
+  "FORBIDDEN": "Bạn không có quyền thực hiện thao tác này",
+  "NOT_FOUND": "Không tìm thấy dữ liệu",
+  "TOO_MANY_REQUESTS": "Bạn thao tác quá nhanh, vui lòng thử lại sau",
+  "INTERNAL_ERROR": "Lỗi hệ thống"
+}
