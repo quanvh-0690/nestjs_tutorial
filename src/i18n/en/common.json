@@ -1,0 +1,10 @@
+{
+  "HELLO": "Hello {name}! Welcome to Medium API",
+  "HEALTH_OK": "Service is running",
+  "BAD_REQUEST": "Bad request",
+  "UNAUTHORIZED": "Unauthorized",
+  "FORBIDDEN": "You do not have permission to perform this action",
+  "NOT_FOUND": "Resource not found",
+  "TOO_MANY_REQUESTS": "Too many requests, please try again later",
+  "INTERNAL_ERROR": "Internal server error"
+}
