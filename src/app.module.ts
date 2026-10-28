@@ -22,6 +22,8 @@ import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AttachmentsModule } from './attachments/attachments.module.js';
 import { ProfilesModule } from './profiles/profiles.module.js';
+import { TagsModule } from './tags/tags.module.js';
+import { ArticlesModule } from './articles/articles.module.js';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { ProfilesModule } from './profiles/profiles.module.js';
     UsersModule,
     AttachmentsModule,
     ProfilesModule,
+    TagsModule,
+    ArticlesModule,
   ],
   providers: [
     // Register globally via DI (instead of app.useGlobalXxx) so e2e tests get them too
