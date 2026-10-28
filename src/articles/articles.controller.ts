@@ -104,4 +104,21 @@ export class ArticlesController {
   async remove(@Param('slug') slug: string, @CurrentUser() user: User) {
     await this.articlesService.remove(slug, user);
   }
+
+  @Post(':slug/favorite')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async favorite(@Param('slug') slug: string, @CurrentUser() user: User) {
+    const article = await this.articlesService.favorite(slug, user);
+    return { article: await this.articlesService.serializeOne(article, user) };
+  }
+
+  @Delete(':slug/favorite')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async unfavorite(@Param('slug') slug: string, @CurrentUser() user: User) {
+    const article = await this.articlesService.unfavorite(slug, user);
+    return { article: await this.articlesService.serializeOne(article, user) };
+  }
 }

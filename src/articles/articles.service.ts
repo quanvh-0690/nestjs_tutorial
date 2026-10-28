@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { slugify } from '../common/utils/slugify.js';
 import { omitUndefined } from '../common/utils/omit-undefined.js';
 import { User } from '../users/entities/user.entity.js';
@@ -32,6 +32,7 @@ export class ArticlesService {
     private readonly favoritesRepository: Repository<Favorite>,
     private readonly tagsService: TagsService,
     private readonly profilesService: ProfilesService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(author: User, dto: CreateArticleDto): Promise<Article> {
@@ -145,6 +146,51 @@ export class ArticlesService {
     const article = await this.findBySlugOrFail(slug);
     this.ensureOwner(article, user);
     await this.articlesRepository.remove(article);
+  }
+
+  /**
+   * Favorite an article. A transaction keeps the favorites table and the
+   * favorites_count column consistent with each other.
+   */
+  async favorite(slug: string, user: User): Promise<Article> {
+    const article = await this.findBySlugOrFail(slug);
+    await this.dataSource.transaction(async (manager) => {
+      const result = await manager
+        .createQueryBuilder()
+        .insert()
+        .into(Favorite)
+        .values({ userId: user.id, articleId: article.id })
+        .orIgnore() // already favorited => skip
+        .execute();
+      if ((result.raw as unknown[]).length > 0) {
+        await manager.increment(
+          Article,
+          { id: article.id },
+          'favoritesCount',
+          1,
+        );
+      }
+    });
+    return this.findBySlugOrFail(slug);
+  }
+
+  async unfavorite(slug: string, user: User): Promise<Article> {
+    const article = await this.findBySlugOrFail(slug);
+    await this.dataSource.transaction(async (manager) => {
+      const result = await manager.delete(Favorite, {
+        userId: user.id,
+        articleId: article.id,
+      });
+      if (result.affected) {
+        await manager.decrement(
+          Article,
+          { id: article.id },
+          'favoritesCount',
+          1,
+        );
+      }
+    });
+    return this.findBySlugOrFail(slug);
   }
 
   /** Only the author can update/delete */
