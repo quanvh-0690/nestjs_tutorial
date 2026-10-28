@@ -7,11 +7,14 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service.js';
 import { LoginRequestDto } from './dto/login.dto.js';
 import { RegisterRequestDto } from '../users/dto/create-user.dto.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { TokenPayload } from './decorators/token-payload.decorator.js';
+import type { JwtPayload } from './auth.types.js';
 
 @ApiTags('Auth')
 @Controller('users')
@@ -36,5 +39,14 @@ export class AuthController {
   async login(@Body() dto: LoginRequestDto) {
     const user = await this.authService.login(dto.user);
     return { user: this.authService.buildUserResponse(user) };
+  }
+
+  /** Logout: POST /api/users/logout, the current token is blacklisted */
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async logout(@TokenPayload() payload: JwtPayload) {
+    await this.authService.logout(payload);
   }
 }

@@ -12,9 +12,11 @@ import {
 } from 'nestjs-i18n';
 import appConfig from './config/app.config.js';
 import jwtConfig from './config/jwt.config.js';
+import redisConfig from './config/redis.config.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { HelloModule } from './hello/hello.module.js';
 import { DatabaseModule } from './database/database.module.js';
+import { RedisModule } from './redis/redis.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 
@@ -23,7 +25,7 @@ import { UsersModule } from './users/users.module.js';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, jwtConfig],
+      load: [appConfig, jwtConfig, redisConfig],
     }),
     // i18n: language resolved in order ?lang=vi -> x-lang header -> Accept-Language
     I18nModule.forRoot({
@@ -41,6 +43,7 @@ import { UsersModule } from './users/users.module.js';
     // Rate limiting (only applied on routes that use ThrottlerGuard)
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     DatabaseModule,
+    RedisModule,
     HelloModule,
     AuthModule,
     UsersModule,
