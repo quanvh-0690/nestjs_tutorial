@@ -4,7 +4,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-/** Common columns (~ $table->id() + $table->timestamps() in Laravel). */
+/** Columns shared by every entity: auto-increment id and timestamps. */
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;

@@ -14,7 +14,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 50, unique: true })
   username: string;
 
-  // select: false => this column is NOT selected by default (~ $hidden in a Laravel model)
+  // select: false => not selected by default; load it explicitly when needed (e.g. for login)
   @Column({ type: 'varchar', length: 255, select: false })
   password: string;
 

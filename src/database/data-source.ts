@@ -1,5 +1,5 @@
 /**
- * DataSource for the TypeORM CLI (~ config/database.php + php artisan migrate).
+ * DataSource for the TypeORM CLI (migration commands).
  * The CLI runs against the build output: dist/database/data-source.js
  */
 import dotenv from 'dotenv';

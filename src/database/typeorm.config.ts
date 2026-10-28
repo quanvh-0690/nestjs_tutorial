@@ -15,7 +15,7 @@ export function buildDataSourceOptions(): DataSourceOptions {
     password: process.env.DB_PASSWORD ?? 'postgres',
     database: process.env.DB_DATABASE ?? 'medium',
     entities,
-    // NEVER use synchronize: true. Every schema change goes through a migration (like Laravel).
+    // NEVER use synchronize: true. Every schema change goes through a migration.
     synchronize: false,
     logging: process.env.DB_LOGGING === 'true',
   };
