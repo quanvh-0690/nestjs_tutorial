@@ -13,19 +13,21 @@ import {
 import appConfig from './config/app.config.js';
 import jwtConfig from './config/jwt.config.js';
 import redisConfig from './config/redis.config.js';
+import storageConfig from './config/storage.config.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { HelloModule } from './hello/hello.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
+import { AttachmentsModule } from './attachments/attachments.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, jwtConfig, redisConfig],
+      load: [appConfig, jwtConfig, redisConfig, storageConfig],
     }),
     // i18n: language resolved in order ?lang=vi -> x-lang header -> Accept-Language
     I18nModule.forRoot({
@@ -47,6 +49,7 @@ import { UsersModule } from './users/users.module.js';
     HelloModule,
     AuthModule,
     UsersModule,
+    AttachmentsModule,
   ],
   providers: [
     // Register globally via DI (instead of app.useGlobalXxx) so e2e tests get them too

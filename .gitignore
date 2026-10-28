@@ -4,4 +4,4 @@ coverage/
 *.tsbuildinfo
 .env
 .env.test
-uploads/
+storage/

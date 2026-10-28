@@ -15,6 +15,8 @@ export function buildDataSourceOptions(): DataSourceOptions {
     password: process.env.DB_PASSWORD ?? 'postgres',
     database: process.env.DB_DATABASE ?? 'medium',
     entities,
+    // Generate UUIDs with gen_random_uuid() (built into PostgreSQL 13+)
+    uuidExtension: 'pgcrypto',
     // NEVER use synchronize: true. Every schema change goes through a migration.
     synchronize: false,
     logging: process.env.DB_LOGGING === 'true',
