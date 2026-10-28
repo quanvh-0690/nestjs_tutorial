@@ -1,0 +1,5 @@
+{
+  "EMAIL_TAKEN": "has already been taken",
+  "USERNAME_TAKEN": "has already been taken",
+  "NOT_FOUND": "User not found"
+}

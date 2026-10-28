@@ -24,8 +24,9 @@ function formatValidationErrors(
   errors: ValidationError[],
 ): Record<string, string[]> {
   return errors.reduce<Record<string, string[]>>((acc, error) => {
-    if (error.constraints) {
-      acc[error.property] = Object.values(error.constraints);
+    const messages = Object.values(error.constraints ?? {});
+    if (messages.length) {
+      acc[error.property] = messages;
     }
     if (error.children?.length) {
       Object.assign(acc, formatValidationErrors(error.children));
@@ -35,7 +36,7 @@ function formatValidationErrors(
 }
 
 /**
- * Filter handling ALL exceptions (~ app/Exceptions/Handler.php in Laravel).
+ * Filter handling ALL exceptions.
  * Error responses always follow the RealWorld spec:
  *   { "errors": { "body": ["message"] } }
  * If the message is an i18n key (e.g. "article.NOT_FOUND") it is translated to the request language.
