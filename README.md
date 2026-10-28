@@ -48,3 +48,14 @@ npm run migration:run
 - Ảnh đại diện upload qua `PUT /api/user` (multipart/form-data, field `image`, tối đa 2MB, JPG/PNG/WEBP/GIF).
 - File lưu ở `storage/private/` (không public). Thông tin file lưu ở bảng `attachments` (polymorphic: `attachable_type`, `attachable_id`; id là UUID).
 - Lấy file: `GET /api/attachments/:id` — bắt buộc đăng nhập và có quyền xem.
+
+## Test
+
+```bash
+npm test               # unit test
+npm run test:e2e       # e2e: database medium_test, Redis db 1, storage/test
+npm run test:e2e:cov   # e2e + coverage (coverage/e2e/index.html)
+```
+
+- Mỗi test case tự tạo dữ liệu giả bằng factory (`test/factories`, dùng faker) và database được **truncate sau mỗi test case**.
+- `test/articles.e2e-spec.ts`: test cấp độ **C2** cho `ArticlesController`, ma trận điều kiện ở `test/C2-articles.md`.
