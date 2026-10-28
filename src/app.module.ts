@@ -21,6 +21,7 @@ import { RedisModule } from './redis/redis.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AttachmentsModule } from './attachments/attachments.module.js';
+import { ProfilesModule } from './profiles/profiles.module.js';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AttachmentsModule } from './attachments/attachments.module.js';
     AuthModule,
     UsersModule,
     AttachmentsModule,
+    ProfilesModule,
   ],
   providers: [
     // Register globally via DI (instead of app.useGlobalXxx) so e2e tests get them too
