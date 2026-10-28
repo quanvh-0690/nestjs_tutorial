@@ -42,3 +42,9 @@ npm run migration:run
 | Xem trạng thái | `npm run migration:show` | `migrate:status` |
 | **Revert** migration gần nhất | `npm run migration:revert` | `migrate:rollback --step=1` |
 | **Reset** — xoá schema, chạy lại từ đầu | `npm run migration:reset` | `migrate:fresh` |
+
+## File upload (private)
+
+- Ảnh đại diện upload qua `PUT /api/user` (multipart/form-data, field `image`, tối đa 2MB, JPG/PNG/WEBP/GIF).
+- File lưu ở `storage/private/` (không public). Thông tin file lưu ở bảng `attachments` (polymorphic: `attachable_type`, `attachable_id`; id là UUID).
+- Lấy file: `GET /api/attachments/:id` — bắt buộc đăng nhập và có quyền xem.

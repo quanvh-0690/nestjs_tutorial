@@ -1,0 +1,5 @@
+{
+  "NOT_FOUND": "File not found",
+  "FORBIDDEN": "You do not have permission to view this file",
+  "INVALID_IMAGE": "must be a JPG, PNG, WEBP or GIF image not larger than 2MB"
+}
