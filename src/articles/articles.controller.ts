@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
@@ -18,6 +19,8 @@ import { User } from '../users/entities/user.entity.js';
 import { ArticlesService } from './articles.service.js';
 import { CreateArticleRequestDto } from './dto/create-article.dto.js';
 import { UpdateArticleRequestDto } from './dto/update-article.dto.js';
+import { ListArticlesQueryDto } from './dto/list-articles-query.dto.js';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -33,6 +36,40 @@ export class ArticlesController {
   ) {
     const article = await this.articlesService.create(user, dto.article);
     return { article: await this.articlesService.serializeOne(article, user) };
+  }
+
+  @Get()
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard)
+  async findAll(
+    @Query() query: ListArticlesQueryDto,
+    @CurrentUser() viewer: User | null,
+  ) {
+    const { articles, articlesCount } =
+      await this.articlesService.findAll(query);
+    return {
+      articles: await this.articlesService.serialize(articles, viewer, {
+        withBody: false,
+      }),
+      articlesCount,
+    };
+  }
+
+  // Must be declared BEFORE ':slug', otherwise "feed" would be treated as a slug
+  @Get('feed')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async feed(@Query() query: PaginationQueryDto, @CurrentUser() user: User) {
+    const { articles, articlesCount } = await this.articlesService.feed(
+      user,
+      query,
+    );
+    return {
+      articles: await this.articlesService.serialize(articles, user, {
+        withBody: false,
+      }),
+      articlesCount,
+    };
   }
 
   @Get(':slug')

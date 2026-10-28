@@ -15,6 +15,13 @@ import { Favorite } from './entities/favorite.entity.js';
 import { CreateArticleDto } from './dto/create-article.dto.js';
 import { UpdateArticleDto } from './dto/update-article.dto.js';
 import { ArticleSerializer } from './serializers/article.serializer.js';
+import { ListArticlesQueryDto } from './dto/list-articles-query.dto.js';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto.js';
+
+export interface ArticlesPage {
+  articles: Article[];
+  articlesCount: number;
+}
 
 @Injectable()
 export class ArticlesService {
@@ -38,6 +45,71 @@ export class ArticlesService {
     });
     const saved = await this.articlesRepository.save(article);
     return this.findBySlugOrFail(saved.slug);
+  }
+
+  /** List with filters + search + pagination (QueryBuilder) */
+  async findAll(query: ListArticlesQueryDto): Promise<ArticlesPage> {
+    const qb = this.baseListQuery();
+
+    if (query.tag) {
+      // Filter with EXISTS, NOT with a where on the joined tags table (that would drop the other tags)
+      qb.andWhere(
+        `EXISTS (SELECT 1 FROM article_tags at INNER JOIN tags t ON t.id = at.tag_id
+                 WHERE at.article_id = article.id AND t.name = :tag)`,
+        { tag: query.tag },
+      );
+    }
+    if (query.author) {
+      qb.andWhere('author.username = :author', { author: query.author });
+    }
+    if (query.favorited) {
+      qb.andWhere(
+        `EXISTS (SELECT 1 FROM favorites f INNER JOIN users u ON u.id = f.user_id
+                 WHERE f.article_id = article.id AND u.username = :favorited)`,
+        { favorited: query.favorited },
+      );
+    }
+    if (query.search) {
+      qb.andWhere(
+        '(article.title ILIKE :q OR article.description ILIKE :q OR article.body ILIKE :q)',
+        { q: `%${query.search}%` },
+      );
+    }
+
+    return this.paginate(qb, query);
+  }
+
+  /** Articles by the authors the user follows */
+  async feed(user: User, query: PaginationQueryDto): Promise<ArticlesPage> {
+    const authorIds = await this.profilesService.getAllFollowingIds(user.id);
+    if (!authorIds.length) return { articles: [], articlesCount: 0 };
+    const qb = this.baseListQuery().where(
+      'article.authorId IN (:...authorIds)',
+      {
+        authorIds,
+      },
+    );
+    return this.paginate(qb, query);
+  }
+
+  private baseListQuery() {
+    return this.articlesRepository
+      .createQueryBuilder('article')
+      .leftJoinAndSelect('article.author', 'author')
+      .leftJoinAndSelect('article.tags', 'tags')
+      .orderBy('article.createdAt', 'DESC');
+  }
+
+  private async paginate(
+    qb: ReturnType<ArticlesService['baseListQuery']>,
+    { limit, offset }: PaginationQueryDto,
+  ): Promise<ArticlesPage> {
+    // skip/take (unlike offset/limit) paginates by article even when the JOIN yields many tag rows
+    const [articles, articlesCount] = await qb
+      .skip(offset)
+      .take(limit)
+      .getManyAndCount();
+    return { articles, articlesCount };
   }
 
   async findBySlugOrFail(slug: string): Promise<Article> {
