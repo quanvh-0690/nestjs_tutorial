@@ -24,8 +24,9 @@ function formatValidationErrors(
   errors: ValidationError[],
 ): Record<string, string[]> {
   return errors.reduce<Record<string, string[]>>((acc, error) => {
-    if (error.constraints) {
-      acc[error.property] = Object.values(error.constraints);
+    const messages = Object.values(error.constraints ?? {});
+    if (messages.length) {
+      acc[error.property] = messages;
     }
     if (error.children?.length) {
       Object.assign(acc, formatValidationErrors(error.children));
