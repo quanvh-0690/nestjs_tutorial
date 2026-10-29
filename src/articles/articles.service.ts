@@ -232,7 +232,7 @@ export class ArticlesService {
           title: article.title,
           description: article.description,
           body: withBody ? article.body : undefined,
-          tagList: (article.tags ?? []).map((tag) => tag.name).sort(),
+          tagList: article.tags.map((tag) => tag.name).sort(),
           createdAt: article.createdAt,
           updatedAt: article.updatedAt,
           favorited: favoritedIds.has(article.id),
