@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bull';
 import type { JobOptions, Queue } from 'bull';
 import {
   MAIL_QUEUE,
+  DailyReportMailData,
   MailJob,
   NewFollowerMailData,
   WelcomeMailData,
@@ -27,5 +28,9 @@ export class MailService {
 
   async sendNewFollower(data: NewFollowerMailData): Promise<void> {
     await this.mailQueue.add(MailJob.NEW_FOLLOWER, data, DEFAULT_JOB_OPTIONS);
+  }
+
+  async sendDailyReport(data: DailyReportMailData): Promise<void> {
+    await this.mailQueue.add(MailJob.DAILY_REPORT, data, DEFAULT_JOB_OPTIONS);
   }
 }

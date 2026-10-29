@@ -3,12 +3,14 @@ import type { Job } from 'bull';
 import { MailerService } from './mailer.service.js';
 import {
   MAIL_QUEUE,
+  DailyReportMailData,
   MailJob,
   NewFollowerMailData,
   WelcomeMailData,
 } from './mail.constants.js';
 import { welcomeTemplate } from './templates/welcome.template.js';
 import { newFollowerTemplate } from './templates/new-follower.template.js';
+import { dailyReportTemplate } from './templates/daily-report.template.js';
 
 /**
  * Consumer: takes jobs from the queue and processes them.
@@ -32,5 +34,11 @@ export class MailProcessor {
       to: job.data.email,
       ...newFollowerTemplate(job.data),
     });
+  }
+
+  @Process(MailJob.DAILY_REPORT)
+  async handleDailyReport(job: Job<DailyReportMailData>): Promise<void> {
+    const { subject, html } = dailyReportTemplate(job.data);
+    await this.mailer.send({ to: job.data.to.join(','), subject, html });
   }
 }

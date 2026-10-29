@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import path from 'node:path';
@@ -28,6 +29,7 @@ import { TagsModule } from './tags/tags.module.js';
 import { ArticlesModule } from './articles/articles.module.js';
 import { CommentsModule } from './comments/comments.module.js';
 import { MailModule } from './mail/mail.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 
 @Module({
   imports: [
@@ -65,6 +67,7 @@ import { MailModule } from './mail/mail.module.js';
       }),
     }),
     MailModule,
+    ScheduleModule.forRoot(), // enables @Cron, @Interval, @Timeout
     HelloModule,
     AuthModule,
     UsersModule,
@@ -73,6 +76,7 @@ import { MailModule } from './mail/mail.module.js';
     TagsModule,
     ArticlesModule,
     CommentsModule,
+    ReportsModule,
   ],
   providers: [
     // Register globally via DI (instead of app.useGlobalXxx) so e2e tests get them too

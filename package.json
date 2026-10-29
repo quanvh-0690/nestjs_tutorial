@@ -27,7 +27,8 @@
     "migration:revert": "npm run build && npm run typeorm -- migration:revert",
     "migration:show": "npm run build && npm run typeorm -- migration:show",
     "migration:reset": "npm run build && npm run typeorm -- schema:drop && npm run typeorm -- migration:run",
-    "test:e2e:cov": "cross-env NODE_ENV=test npm run migration:reset && cross-env NODE_ENV=test vitest run --config ./vitest.config.e2e.ts --coverage"
+    "test:e2e:cov": "cross-env NODE_ENV=test npm run migration:reset && cross-env NODE_ENV=test vitest run --config ./vitest.config.e2e.ts --coverage",
+    "seed": "npm run build && node dist/database/seeds/seed.js"
   },
   "dependencies": {
     "@nestjs/bull": "^12.0.0",
