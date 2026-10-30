@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
 import { Follow } from './entities/follow.entity.js';
 import { ProfileSerializer } from './serializers/profile.serializer.js';
+import { MailService } from '../mail/mail.service.js';
 
 @Injectable()
 export class ProfilesService {
@@ -16,6 +17,7 @@ export class ProfilesService {
     @InjectRepository(Follow)
     private readonly followsRepository: Repository<Follow>,
     private readonly usersService: UsersService,
+    private readonly mailService: MailService,
   ) {}
 
   async getProfile(
@@ -35,12 +37,20 @@ export class ProfilesService {
       throw new UnprocessableEntityException('profile.CANNOT_FOLLOW_SELF');
     }
     // orIgnore: following twice is not an error (idempotent)
-    await this.followsRepository
+    const result = await this.followsRepository
       .createQueryBuilder()
       .insert()
       .values({ followerId: follower.id, followingId: user.id })
       .orIgnore()
       .execute();
+    // Only notify the author on the first follow
+    if ((result.raw as unknown[]).length > 0) {
+      await this.mailService.sendNewFollower({
+        email: user.email,
+        username: user.username,
+        followerUsername: follower.username,
+      });
+    }
     return this.buildProfile(user, true);
   }
 

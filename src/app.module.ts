@@ -1,5 +1,7 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import path from 'node:path';
@@ -14,6 +16,7 @@ import appConfig from './config/app.config.js';
 import jwtConfig from './config/jwt.config.js';
 import redisConfig from './config/redis.config.js';
 import storageConfig from './config/storage.config.js';
+import mailConfig from './config/mail.config.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { HelloModule } from './hello/hello.module.js';
 import { DatabaseModule } from './database/database.module.js';
@@ -25,13 +28,15 @@ import { ProfilesModule } from './profiles/profiles.module.js';
 import { TagsModule } from './tags/tags.module.js';
 import { ArticlesModule } from './articles/articles.module.js';
 import { CommentsModule } from './comments/comments.module.js';
+import { MailModule } from './mail/mail.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, jwtConfig, redisConfig, storageConfig],
+      load: [appConfig, jwtConfig, redisConfig, storageConfig, mailConfig],
     }),
     // i18n: language resolved in order ?lang=vi -> x-lang header -> Accept-Language
     I18nModule.forRoot({
@@ -50,6 +55,19 @@ import { CommentsModule } from './comments/comments.module.js';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     DatabaseModule,
     RedisModule,
+    // Queues share the same Redis instance
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get<string>('redis.host'),
+          port: config.get<number>('redis.port'),
+          db: config.get<number>('redis.db'),
+        },
+      }),
+    }),
+    MailModule,
+    ScheduleModule.forRoot(), // enables @Cron, @Interval, @Timeout
     HelloModule,
     AuthModule,
     UsersModule,
@@ -58,6 +76,7 @@ import { CommentsModule } from './comments/comments.module.js';
     TagsModule,
     ArticlesModule,
     CommentsModule,
+    ReportsModule,
   ],
   providers: [
     // Register globally via DI (instead of app.useGlobalXxx) so e2e tests get them too

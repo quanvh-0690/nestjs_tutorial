@@ -7,6 +7,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto.js';
 import { UserSerializer } from '../users/serializers/user.serializer.js';
 import { LoginDto } from './dto/login.dto.js';
 import { TokenBlacklistService } from './token-blacklist.service.js';
+import { MailService } from '../mail/mail.service.js';
 import type { JwtPayload } from './auth.types.js';
 
 @Injectable()
@@ -15,10 +16,17 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly blacklist: TokenBlacklistService,
+    private readonly mailService: MailService,
   ) {}
 
-  register(dto: CreateUserDto): Promise<User> {
-    return this.usersService.create(dto);
+  async register(dto: CreateUserDto): Promise<User> {
+    const user = await this.usersService.create(dto);
+    // Push the welcome-mail job onto the queue; the API returns immediately without waiting for delivery
+    await this.mailService.sendWelcome({
+      email: user.email,
+      username: user.username,
+    });
+    return user;
   }
 
   async login(dto: LoginDto): Promise<User> {

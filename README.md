@@ -59,3 +59,10 @@ npm run test:e2e:cov   # e2e + coverage (coverage/e2e/index.html)
 
 - Mỗi test case tự tạo dữ liệu giả bằng factory (`test/factories`, dùng faker) và database được **truncate sau mỗi test case**.
 - `test/articles.e2e-spec.ts`: test cấp độ **C2** cho `ArticlesController`, ma trận điều kiện ở `test/C2-articles.md`.
+
+## Mail & lập lịch
+
+- Queue `mail` (`@nestjs/bull` + Redis): mail chào mừng khi đăng ký, mail cho tác giả khi có người follow.
+- Cron `0 0 * * *` (`@nestjs/schedule`, giờ Việt Nam): gửi admin top 5 bài được yêu thích nhất.
+- Xem mail local: http://localhost:8025 (Mailpit trong docker-compose).
+- `npm run seed` tạo tài khoản admin `admin@medium.local / password123`.

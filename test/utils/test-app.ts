@@ -7,12 +7,24 @@ import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import type { Redis } from 'ioredis';
 import { DataSource } from 'typeorm';
+import { getQueueToken } from '@nestjs/bull';
 import { App } from 'supertest/types';
 import { AppModule } from '../../src/app.module.js';
 import { setupApp } from '../../src/setup-app.js';
 import { REDIS_CLIENT } from '../../src/redis/redis.constants.js';
+import { MAIL_QUEUE } from '../../src/mail/mail.constants.js';
 
 export type TestApp = INestApplication<App>;
+
+/**
+ * Fake mail queue: tests never send real mail, they only check that jobs are pushed
+ */
+export const mailQueueMock = {
+  add: vi.fn(),
+  process: vi.fn(),
+  on: vi.fn(),
+  close: vi.fn(),
+};
 
 /** Boot the app exactly as in production (same AppModule + setupApp) */
 export async function createTestApp(): Promise<TestApp> {
@@ -21,7 +33,10 @@ export async function createTestApp(): Promise<TestApp> {
   }
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  })
+    .overrideProvider(getQueueToken(MAIL_QUEUE))
+    .useValue(mailQueueMock)
+    .compile();
   const app = setupApp(
     moduleRef.createNestApplication<NestExpressApplication>(),
   ) as unknown as TestApp;
@@ -45,6 +60,7 @@ export async function resetState(app: TestApp): Promise<void> {
   await dataSource.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
 
   await app.get<Redis>(REDIS_CLIENT).flushdb();
+  mailQueueMock.add.mockClear();
 
   const storagePath = app
     .get(ConfigService)
